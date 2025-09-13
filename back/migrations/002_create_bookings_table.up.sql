@@ -1,0 +1,7 @@
+CREATE TABLE bookings (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  place_name VARCHAR(255) NOT NULL,
+  start_time TIMESTAMP NOT NULL,
+  end_time TIMESTAMP NOT NULL
+);
