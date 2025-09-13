@@ -1,0 +1,183 @@
+/* === Глобальные стили и фон === */
+body {
+  background: linear-gradient(120deg, #181e2c 0%, #27213b 100%);
+  font-family: 'Montserrat', Arial, sans-serif;
+  margin: 0;
+}
+
+/* === Новый контейнер для идеальной центровки главной страницы === */
+.misis-home-bg {
+  min-height: 100vh;
+  width: 100vw;
+  background: linear-gradient(120deg, #181e2c 0%, #27213b 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.misis-home-container {
+  background: rgba(32, 35, 54, 0.96);
+  border-radius: 22px;
+  box-shadow: 0 16px 48px #1c1849a0;
+  width: 430px;
+  max-width: 96vw;
+  padding: 2.8rem 2.2rem 2.1rem 2.2rem;
+  text-align: center;
+  color: #ecebf2;
+  /* margin-top убран для центровки */
+}
+
+/* === Gradient Title === */
+.misis-title-gradient {
+  font-size: 2.7rem;
+  font-weight: 830;
+  letter-spacing: 0.3px;
+  background: linear-gradient(95deg, #19dfa5 0%, #40c6f6 80%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1.1rem;
+  margin-top: 0;
+}
+
+.misis-desc {
+  font-size: 1.18rem;
+  color: #c9cee3;
+  margin-bottom: 2.3rem;
+  margin-top: 0;
+  line-height: 1.5;
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+
+.misis-byline {
+  color: #32e3af;
+  font-weight: 700;
+  display: block;
+  margin-top: 0.7em;
+}
+
+/* === Кнопки по центру главной страницы === */
+.action-buttons,
+.misis-btn-row {
+  display: flex;
+  gap: 28px;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+}
+
+.explore-btn,
+.misis-btn {
+  background: linear-gradient(90deg, #37f4a1 0%, #2fabff 100%);
+  color: #222;
+  font-size: 1.12rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  padding: 1rem 2.1rem;
+  min-width: 132px;
+  box-shadow: 0 4px 16px #2222;
+  cursor: pointer;
+  transition: background 0.18s, color 0.17s, transform 0.13s;
+  margin-bottom: 0;
+}
+.explore-btn:hover,
+.misis-btn:hover {
+  background: linear-gradient(90deg, #21938a 0%, #234eaa 100%);
+  color: #fff;
+  transform: translateY(-1px) scale(1.04);
+}
+
+/* === Контакты внизу главной страницы === */
+.contact-info,
+.misis-contact {
+  color: #43d6c3;
+  margin-top: 1.4rem;
+  font-size: 1.08rem;
+}
+.contact-info a,
+.misis-contact a {
+  color: #5ec2ff;
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: 2px;
+}
+.contact-info a:hover,
+.misis-contact a:hover {
+  color: #2c85ff;
+  text-decoration: underline;
+}
+
+/* === Стиль форм и карточек Login/Register (универсальный) === */
+.card,
+.card-dark {
+  background: #181c29;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px #0004;
+  width: 375px;
+  margin: 90px auto 0 auto;
+  padding: 2rem;
+  text-align: center;
+  color: #eee;
+}
+
+.input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #222e;
+  border-radius: 8px;
+  margin: 0.7rem 0 1.3rem 0;
+  font-size: 1rem;
+  background: #212433;
+  color: #e0e1e3;
+}
+.input:focus {
+  border: 1.5px solid #40c6f6;
+  outline: none;
+  background: #2b2e42;
+}
+
+/* === Кнопки форм === */
+.button {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(90deg, #347cff 0%, #25e6b9 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #3333;
+  margin-bottom: 0.8em;
+  transition: background 0.19s, color 0.16s, transform 0.12s;
+}
+.button:hover {
+  background: linear-gradient(90deg, #23487f 0%, #20df84 100%);
+  color: #fff;
+  transform: scale(1.03);
+}
+.button:disabled {
+  background: #c0c0c0;
+  color: #fff;
+  cursor: not-allowed;
+}
+
+/* === Error / Success === */
+.error {
+  color: #ff4b6c;
+  margin: 0.4rem 0;
+  font-weight: 500;
+  font-size: 0.98rem;
+}
+.success {
+  color: #19d47a;
+  margin: 0.4rem 0;
+  font-weight: 500;
+  font-size: 0.98rem;
+}
+
+/* === Тёмный фон для страниц авторизации и регистрации === */
+.dark-bg,
+.home-dark-bg {
+  background: linear-gradient(120deg, #191e2e 0%, #2c2544 100%);
+  min-height: 100vh;
+}

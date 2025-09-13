@@ -1,0 +1,220 @@
+import React, { useState } from "react";
+import ReactCalendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+
+const tables = [
+  { id: 1, label: "Стол 1", seats: 6 },
+  { id: 2, label: "Стол 2", seats: 6 },
+  { id: 3, label: "Стол с печеньками", seats: 0, isCookies: true },
+  { id: 4, label: "Стол 4", seats: 6 },
+  { id: 5, label: "Стол 5", seats: 6 },
+  { id: 6, label: "Стол 6", seats: 6 },
+];
+
+// Имитация занятых мест
+const initialBooked = {};
+
+function getDateKey(date) {
+  return date.toISOString().split("T")[0];
+}
+
+export default function BookingPage() {
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedTable, setSelectedTable] = useState(null);
+  const [selectedSeat, setSelectedSeat] = useState(null);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
+  const [booked, setBooked] = useState(initialBooked);
+
+  const currentBookedSeats = () => {
+    const dateKey = getDateKey(selectedDate);
+    return booked[dateKey]?.[selectedTable] || [];
+  };
+
+  const handleBook = () => {
+    if (!selectedTable || !selectedSeat) {
+      setError("Выберите стол и место!");
+      setSuccess("");
+      return;
+    }
+    const dateKey = getDateKey(selectedDate);
+    const tableBooked = booked[dateKey]?.[selectedTable] || [];
+    if (tableBooked.includes(selectedSeat)) {
+      setError("Место уже занято!");
+      setSuccess("");
+      return;
+    }
+    setBooked(prevBooked => {
+      const newBooked = { ...prevBooked };
+      if (!newBooked[dateKey]) newBooked[dateKey] = {};
+      if (!newBooked[dateKey][selectedTable]) newBooked[dateKey][selectedTable] = [];
+      newBooked[dateKey][selectedTable] = [...newBooked[dateKey][selectedTable], selectedSeat];
+      return newBooked;
+    });
+    setSuccess(
+      `Бронирование успешно: ${tables.find(t => t.id === selectedTable).label}, место ${selectedSeat}, дата ${selectedDate.toLocaleDateString()}`
+    );
+    setError("");
+    setSelectedSeat(null);
+  };
+
+  const handleTableSelect = (tableId, isCookies) => {
+    if (isCookies) return;
+    setSelectedTable(tableId);
+    if (selectedTable !== tableId) setSelectedSeat(null);
+    setError("");
+    setSuccess("");
+  };
+
+  const handleSeatSelect = (seatNum) => {
+    if (currentBookedSeats().includes(seatNum)) {
+      setError("Это место уже занято!");
+      setSuccess("");
+      return;
+    }
+    setSelectedSeat(seatNum);
+    setError("");
+    setSuccess("");
+  };
+
+  return (
+    <div style={{ maxWidth: 780, margin: "0 auto", padding: 20 }}>
+      <h2 style={{ textAlign: "center", marginBottom: 24 }}>Бронирование места</h2>
+      <div style={{ display: "flex", gap: 36, flexWrap: "wrap", justifyContent: "space-around", alignItems: "flex-start" }}>
+        <div style={{ minWidth: 300 }}>
+          <label style={{ fontWeight: 600, marginBottom: 8, display: "block" }}>Выберите дату:</label>
+          <ReactCalendar
+            onChange={date => { setSelectedDate(date); setSelectedSeat(null); setSuccess(""); setError(""); }}
+            value={selectedDate}
+            minDate={new Date()}
+          />
+        </div>
+        <div style={{ minWidth: 370 }}>
+          <label style={{ fontWeight: 600, marginBottom: 8, display: "block" }}>Выберите стол и место:</label>
+          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+            {/* Верхний ряд */}
+            <div style={{ display: "flex", gap: 18 }}>
+              {tables.slice(0, 3).map(table => (
+                <div key={table.id} style={{ minWidth: 90, textAlign: "center" }}>
+                  <div
+                    onClick={() => handleTableSelect(table.id, table.isCookies)}
+                    style={{
+                      padding: "8px 0",
+                      borderRadius: 9,
+                      background:
+                        table.isCookies
+                          ? "#fceabb"
+                          : selectedTable === table.id
+                          ? "#19dfa5"
+                          : "#232c4b",
+                      color: table.isCookies ? "#d2691e" : "#fff",
+                      fontWeight: 600,
+                      boxShadow: "0 2px 8px #232c4bb1",
+                      cursor: table.isCookies ? "default" : "pointer",
+                      marginBottom: 6,
+                      border: table.isCookies ? "2px dashed #FFA07A" : "none",
+                      fontSize: 16,
+                      userSelect: "none",
+                    }}
+                  >
+                    {table.label}
+                    {table.isCookies && " 🍪"}
+                  </div>
+                  {/* Только если стол не с печеньками, рисуем места */}
+                  {!table.isCookies && (
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center" }}>
+                      {[...Array(table.seats)].map((_, idx) => {
+                        const seatNum = idx + 1;
+                        const busy = booked[getDateKey(selectedDate)]?.[table.id]?.includes(seatNum);
+                        const selected = selectedSeat === seatNum && selectedTable === table.id;
+                        return (
+                          <button
+                            key={idx}
+                            onClick={() => handleSeatSelect(seatNum)}
+                            disabled={selectedTable !== table.id || busy}
+                            style={{
+                              width: 28,
+                              height: 28,
+                              borderRadius: "50%",
+                              border: busy ? "2px solid #ff4b6c" : (selected ? "2px solid #19dfa5" : "1px solid #b5c7f2"),
+                              background: busy ? "#ffdddd" : (selected ? "#37f4a1" : "#ecebf2"),
+                              color: busy ? "#ff4b6c" : "#222",
+                              fontWeight: 600,
+                              cursor: busy ? "not-allowed" : (selectedTable === table.id ? "pointer" : "not-allowed"),
+                              opacity: busy ? 0.5 : 1
+                            }}>
+                            {seatNum}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            {/* Нижний ряд */}
+            <div style={{ display: "flex", gap: 18 }}>
+              {tables.slice(3).map(table => (
+                <div key={table.id} style={{ minWidth: 90, textAlign: "center" }}>
+                  <div
+                    onClick={() => handleTableSelect(table.id, table.isCookies)}
+                    style={{
+                      padding: "8px 0",
+                      borderRadius: 9,
+                      background: selectedTable === table.id ? "#19dfa5" : "#232c4b",
+                      color: "#fff",
+                      fontWeight: 600,
+                      boxShadow: "0 2px 8px #232c4bb1",
+                      cursor: "pointer",
+                      marginBottom: 6,
+                      fontSize: 16,
+                    }}
+                  >
+                    {table.label}
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center" }}>
+                    {[...Array(table.seats)].map((_, idx) => {
+                      const seatNum = idx + 1;
+                      const busy = booked[getDateKey(selectedDate)]?.[table.id]?.includes(seatNum);
+                      const selected = selectedSeat === seatNum && selectedTable === table.id;
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => handleSeatSelect(seatNum)}
+                          disabled={selectedTable !== table.id || busy}
+                          style={{
+                            width: 28,
+                            height: 28,
+                            borderRadius: "50%",
+                            border: busy ? "2px solid #ff4b6c" : (selected ? "2px solid #19dfa5" : "1px solid #b5c7f2"),
+                            background: busy ? "#ffdddd" : (selected ? "#37f4a1" : "#ecebf2"),
+                            color: busy ? "#ff4b6c" : "#222",
+                            fontWeight: 600,
+                            cursor: busy ? "not-allowed" : (selectedTable === table.id ? "pointer" : "not-allowed"),
+                            opacity: busy ? 0.5 : 1
+                          }}>
+                          {seatNum}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style={{ maxWidth: 400, margin: "25px auto 0 auto", textAlign: "center" }}>
+        {error && <div className="error">{error}</div>}
+        {success && <div className="success">{success}</div>}
+        <button
+          className="misis-btn"
+          style={{ fontSize: 18, width: "100%", marginTop: 12 }}
+          onClick={handleBook}
+        >
+          Подтвердить бронирование
+        </button>
+      </div>
+    </div>
+  );
+}
