@@ -11,17 +11,25 @@ function App() {
   return (
     <Router>
       <nav style={{ padding: 20, backgroundColor: '#222', color: 'white' }}>
-        <Link to="/" style={{ marginRight: 15, color: 'lightblue', textDecoration: 'none' }}>Главная</Link>
-        <Link to="/profile" style={{ marginRight: 15, color: 'lightblue', textDecoration: 'none' }}>Профиль</Link>
-        <Link to="/booking" style={{ marginRight: 15, color: 'lightblue', textDecoration: 'none' }}>Бронирование</Link>
-        <Link to="/login" style={{ color: 'lightblue', textDecoration: 'none' }}>Вход</Link>
+        <Link to="/" style={{ marginRight: 15, color: 'lightblue', textDecoration: 'none' }}>
+          Главная
+        </Link>
+        <Link to="/profile" style={{ marginRight: 15, color: 'lightblue', textDecoration: 'none' }}>
+          Профиль
+        </Link>
+        <Link to="/booking" style={{ marginRight: 15, color: 'lightblue', textDecoration: 'none' }}>
+          Бронирование
+        </Link>
+        <Link to="/login" style={{ color: 'lightblue', textDecoration: 'none' }}>
+          Вход
+        </Link>
       </nav>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile/*" element={<Profile />} />
-        <Route path="/booking" element={<BookingPage />} /> {/* Роут для страницы брони */}
+        <Route path="/booking" element={<BookingPage />} />
       </Routes>
     </Router>
   );

@@ -20,3 +20,12 @@ func GetUserByEmail(email string) (*models.User, error) {
     }
     return u, err
 }
+
+func GetUserByID(id int64) (*models.User, error) {
+    u := &models.User{}
+    err := config.DB.QueryRow(`SELECT id, email, password FROM users WHERE id = $1`, id).Scan(&u.ID, &u.Email, &u.Password)
+    if err == sql.ErrNoRows {
+        return nil, nil
+    }
+    return u, err
+}
