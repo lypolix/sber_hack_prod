@@ -44,9 +44,13 @@ func main() {
         auth.POST("/register", handlers.RegisterHandler)
         auth.POST("/login", handlers.LoginHandler)
 
-        api.GET("/bookings", handlers.GetUserBookings)
+        api.GET("/bookings", middlewares.JWTAuthMiddleware(), handlers.GetUserBookings)
 
         api.GET("/profile", middlewares.JWTAuthMiddleware(), handlers.GetProfileHandler)
+
+        api.GET("/booked-seats", handlers.GetBookedSeatsHandler) // для получения занятых мест по дате
+        api.POST("/book", middlewares.JWTAuthMiddleware(), handlers.BookSeatHandler) // для бронирования места
+
     }
 
     r.Static("/static", "./frontend_build/static")

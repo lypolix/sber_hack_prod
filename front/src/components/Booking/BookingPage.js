@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactCalendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 
@@ -11,8 +11,6 @@ const tables = [
   { id: 6, label: "Стол 6", seats: 6 },
 ];
 
-const initialBooked = {};
-
 function getDateKey(date) {
   return date.toISOString().split("T")[0];
 }
@@ -23,14 +21,42 @@ export default function BookingPage() {
   const [selectedSeat, setSelectedSeat] = useState(null);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
-  const [booked, setBooked] = useState(initialBooked);
+  const [booked, setBooked] = useState({}); // { [dateKey]: { [tableId]: [seatNums] } }
+
+  // Загрузка занятых мест с backend при изменении даты
+  useEffect(() => {
+    async function loadBooked() {
+      const token = localStorage.getItem("jwtToken");
+      const dateKey = getDateKey(selectedDate);
+      if (!token) {
+        setError("Пользователь не авторизован");
+        setBooked({});
+        return;
+      }
+      try {
+        const response = await fetch(`http://localhost:8080/api/booked-seats?date=${dateKey}`, {
+          headers: {
+            Authorization: "Bearer " + token
+          }
+        });
+        if (!response.ok) throw new Error("Ошибка загрузки забронированных мест");
+        const data = await response.json();
+        setBooked({ [dateKey]: data });
+        setError("");
+      } catch (e) {
+        setError(e.message || "Ошибка загрузки");
+        setBooked({});
+      }
+    }
+    loadBooked();
+  }, [selectedDate]);
 
   const currentBookedSeats = () => {
     const dateKey = getDateKey(selectedDate);
     return booked[dateKey]?.[selectedTable] || [];
   };
 
-  const handleBook = () => {
+  const handleBook = async () => {
     if (!selectedTable || !selectedSeat) {
       setError("Выберите стол и место!");
       setSuccess("");
@@ -43,18 +69,47 @@ export default function BookingPage() {
       setSuccess("");
       return;
     }
-    setBooked(prevBooked => {
-      const newBooked = { ...prevBooked };
-      if (!newBooked[dateKey]) newBooked[dateKey] = {};
-      if (!newBooked[dateKey][selectedTable]) newBooked[dateKey][selectedTable] = [];
-      newBooked[dateKey][selectedTable] = [...newBooked[dateKey][selectedTable], selectedSeat];
-      return newBooked;
-    });
-    setSuccess(
-      `Бронирование успешно: ${tables.find(t => t.id === selectedTable).label}, место ${selectedSeat}, дата ${selectedDate.toLocaleDateString()}`
-    );
-    setError("");
-    setSelectedSeat(null);
+
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      setError("Пользователь не авторизован");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:8080/api/book", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token
+        },
+        body: JSON.stringify({
+          date: dateKey,
+          tableId: selectedTable,
+          seatNumber: selectedSeat
+        })
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Ошибка бронирования");
+      }
+      // Обновляем локально список занятых мест
+      setBooked(prev => {
+        const newBooked = { ...prev };
+        if (!newBooked[dateKey]) newBooked[dateKey] = {};
+        if (!newBooked[dateKey][selectedTable]) newBooked[dateKey][selectedTable] = [];
+        newBooked[dateKey][selectedTable] = [...newBooked[dateKey][selectedTable], selectedSeat];
+        return newBooked;
+      });
+      setSuccess(
+        `Бронирование успешно: ${tables.find(t => t.id === selectedTable).label}, место ${selectedSeat}, дата ${selectedDate.toLocaleDateString()}`
+      );
+      setError("");
+      setSelectedSeat(null);
+    } catch (e) {
+      setError(e.message);
+      setSuccess("");
+    }
   };
 
   const handleTableSelect = (tableId, isCookies) => {
@@ -84,7 +139,12 @@ export default function BookingPage() {
           <label style={{ fontWeight: 600, marginBottom: 8, display: "block", color: "#ecebf2" }}>Выберите дату:</label>
           <div style={{ background: "#232c4b", borderRadius: 12, padding: "10px 8px" }}>
             <ReactCalendar
-              onChange={date => { setSelectedDate(date); setSelectedSeat(null); setSuccess(""); setError(""); }}
+              onChange={date => {
+                setSelectedDate(date);
+                setSelectedSeat(null);
+                setSuccess("");
+                setError("");
+              }}
               value={selectedDate}
               minDate={new Date()}
             />
@@ -105,8 +165,8 @@ export default function BookingPage() {
                       background: table.isCookies
                         ? "#fceabb"
                         : selectedTable === table.id
-                        ? "#19dfa5"
-                        : "#232c4b",
+                          ? "#19dfa5"
+                          : "#232c4b",
                       color: table.isCookies ? "#d2691e" : "#ecebf2",
                       fontWeight: 600,
                       boxShadow: "0 2px 8px #232c4bb1",
