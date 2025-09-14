@@ -40,8 +40,7 @@ npm run start
 ```
 export JWT_SECRET=0/D8/Igd7mO0Sj4IgBZ4wo7GT0WLKT/+RJqoMMN8/Kc=
 cd back
-go build -o backend ./main.go
-./backend
+go run cmd/sber_hack/main.go
 ```
 ---
 
